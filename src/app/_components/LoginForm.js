@@ -16,12 +16,17 @@ export default function LoginForm() {
     const [pswVisible, setPswVisible] = useState(false);
     const [pswConfVisible, setPswConfVisible] = useState(false);
 
+    const [errorMessage, setErrorMessage] = useState("");
+    const [successMessage, setSuccessMessage] = useState("");
+
     const hasLowercase = /[a-z]/.test(password);
     const hasUppercase = /[A-Z]/.test(password);
     const hasNumber = /\d/.test(password);
     const hasSpecial = /[^A-Za-z0-9]/.test(password);
     const hasMinLength = password.length >= 8;
     const passwordsAreEqual = password === passwordConf;
+
+    const isValidPhone = /^0\d(?:\s?\d{2}){4}$/.test(phoneNumber);
 
     const criteria = [
         { label: "1 caractère minuscule", valid: hasLowercase },
@@ -31,19 +36,61 @@ export default function LoginForm() {
         { label: "Minimum 8 caractères", valid: hasMinLength },
     ];
 
+    const inputsClass = "bg-[#F4F4F4] rounded-full px-5 py-2 w-full border border-transparent focus:border-[#4EA04C] focus:ring-1 focus:ring-[#4EA04C] focus:outline-none"
+
+    function formatPhoneNumber(input) {
+        const digits = input.replace(/\D/g, "").slice(0, 10);
+
+        return digits.replace(/(\d{2})(?=\d)/g, "$1 ").trim();
+    }
+
     const handleSubmit = (e) => {
         e.preventDefault();
-        console.log("submit", email);
+
+        if (
+            !companyName ||
+            !companyType ||
+            !location ||
+            !phoneNumber ||
+            !email ||
+            !password ||
+            !passwordConf
+        ) {
+            setErrorMessage("Veuillez remplir tous les champs.");
+            return;
+        }
+
+        if (!isValidPhone) {
+            setErrorMessage("Le numéro de téléphone n'est pas valide.");
+            return;
+        }
+
+        if (!hasLowercase || !hasUppercase || !hasNumber || !hasSpecial || !hasMinLength || !passwordsAreEqual) {
+            setErrorMessage("Le mot de passe ne respecte pas les critères.");
+            return;
+        }
+
+        setErrorMessage("");
+        setSuccessMessage("Bienvenue dans l'aventure !");
+        const form = {
+            companyName: companyName,
+            companyType: companyType,
+            location: location,
+            phoneNumber: phoneNumber,
+            email: email,
+            password: password
+        }
+        console.log("form submitted", form);
     }
 
     return (
         <Form onSubmit={handleSubmit} className="flex flex-col w-full gap-4">
-            <div className="w-full items-start content-center flex flex-col gap-4">
+            <div className="w-full items-start content-center flex flex-col gap-6">
                 <div className="w-full">
                     <p className="text-[var(--light-text)] text-[16px] font-thin ml-4">Nom de l'entreprise</p>
                     <input
                         type="text"
-                        className="bg-[#F4F4F4] rounded-full px-5 py-2 w-full"
+                        className={inputsClass}
                         value={companyName}
                         onChange={(e) => setCompanyName(e.target.value)}
                     />
@@ -56,10 +103,8 @@ export default function LoginForm() {
                     <div className="relative">
                         <select
                             value={companyType}
+                            className={`appearance-none ${!companyType ? "text-[var(--light-text)]" : ""} ${inputsClass}`}
                             onChange={(e) => setCompanyType(e.target.value)}
-                            className={`appearance-none bg-[#F4F4F4] rounded-full px-5 py-2 w-full pr-10 ${
-                                companyType === "" ? "text-[var(--light-text)]" : ""
-                            }`}
                         >
                             <option value="" disabled hidden>Sélectionnez un type d'entreprise</option>
                             <option value="sarl">SARL</option>
@@ -67,7 +112,7 @@ export default function LoginForm() {
                             <option value="auto-entreprise">Auto-entreprise</option>
                             <option value="association">Association</option>
                         </select>
-                        <div className="pointer-events-none absolute right-[5px] top-[5px] w-[30px] h-[30px] flex items-center justify-center rounded-full bg-white">
+                        <div className="pointer-events-none absolute right-[5px] top-[5px] w-[32px] h-[32px] flex items-center justify-center rounded-full bg-white">
                             <ChevronDown
                                 className="text-[var(--light-text)]"
                                 size={18}
@@ -83,10 +128,8 @@ export default function LoginForm() {
                     <div className="relative">
                         <select
                             value={location}
+                            className={`appearance-none ${!location ? "text-[var(--light-text)]" : ""} ${inputsClass}`}
                             onChange={(e) => setLocation(e.target.value)}
-                            className={`appearance-none bg-[#F4F4F4] rounded-full px-5 py-2 w-full pr-10 ${
-                                location === "" ? "text-[var(--light-text)]" : ""
-                            }`}
                         >
                             <option value="" disabled hidden>Sélectionnez une région</option>
                             <option value="ARA">Auvergne-Rhône-Alpes</option>
@@ -95,7 +138,7 @@ export default function LoginForm() {
                             <option value="IDF">Île-de-France</option>
                             <option value="PACA">Provence-Alpes-Côte d’Azur</option>
                         </select>
-                        <div className="pointer-events-none absolute right-[5px] top-[5px] w-[30px] h-[30px] flex items-center justify-center rounded-full bg-white">
+                        <div className="pointer-events-none absolute right-[5px] top-[5px] w-[32px] h-[32px] flex items-center justify-center rounded-full bg-white">
                             <ChevronDown
                                 className="text-[var(--light-text)]"
                                 size={18}
@@ -108,10 +151,10 @@ export default function LoginForm() {
                 <div className="w-full">
                     <p className="text-[var(--light-text)] text-[16px] font-thin ml-4">Numéro de téléphone</p>
                     <input
-                        type="email"
-                        className="bg-[#F4F4F4] rounded-full px-5 py-2 w-full"
+                        type="tel"
+                        className={inputsClass}
                         value={phoneNumber}
-                        onChange={(e) => setPhoneNumber(e.target.value)}
+                        onChange={(e) => setPhoneNumber(formatPhoneNumber(e.target.value))}
                     />
                 </div>
 
@@ -119,7 +162,7 @@ export default function LoginForm() {
                     <p className="text-[var(--light-text)] text-[16px] font-thin ml-4">Adresse mail</p>
                     <input
                         type="email"
-                        className="bg-[#F4F4F4] rounded-full px-5 py-2 w-full"
+                        className={inputsClass}
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                     />
@@ -130,7 +173,7 @@ export default function LoginForm() {
                     <div className="relative">
                         <input
                             type={pswVisible ? "text" : "password"}
-                            className="bg-[#F4F4F4] rounded-full px-5 py-2 w-full"
+                            className={inputsClass}
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                         />
@@ -169,7 +212,7 @@ export default function LoginForm() {
                     <div className="relative">
                         <input
                             type={pswConfVisible ? "text" : "password"}
-                            className="bg-[#F4F4F4] rounded-full px-5 py-2 w-full"
+                            className={inputsClass}
                             value={passwordConf}
                             onChange={(e) => setPasswordConf(e.target.value)}
                         />
@@ -183,16 +226,25 @@ export default function LoginForm() {
                     </div>
                 </div>
                 <div className="w-full">
-                    {!passwordsAreEqual && passwordConf.length >= 1 ? <p className="flex items-center gap-2 ml-1 font-thin text-[14px] text-[#F25C5C]"><X size={16} className="shrink-0" />Les mots de passe ne correspondent pas</p> : ''}
+                    {!passwordsAreEqual && passwordConf.length >= 1
+                        ? <p className="flex items-center gap-2 ml-1 font-thin text-[14px] text-[#F25C5C]">
+                            <X size={16} className="shrink-0" />
+                            Les mots de passe ne correspondent pas</p>
+                        : ''
+                    }
                 </div>
             </div>
 
             <div className="w-full items-start content-center flex flex-col gap-4">
                 <p className="text-[#505050] font-[400] text-[14px]">
                     En créeant un compte vous acceptez les&nbsp;
-                    <a className="underline" href="https://www.kouer.fr/cgv-cgu">Conditions Générales d'Utilisation et les Conditions Générales de Vente</a>
+                    <a className="underline" href="https://www.kouer.fr/cgv-cgu">
+                        Conditions Générales d'Utilisation et les Conditions Générales de Vente
+                    </a>
                     &nbsp;&&nbsp;
-                    <a className="underline" href="https://www.kouer.fr/politique-de-confidentialite">Politique de confidentialité</a>
+                    <a className="underline" href="https://www.kouer.fr/politique-de-confidentialite">
+                        Politique de confidentialité
+                    </a>
                     &nbsp;de Kouer.
                 </p>
                 <button
@@ -201,7 +253,20 @@ export default function LoginForm() {
                 >
                     Je crée mon compte
                 </button>
-                <p className="font-medium text-[16px] text-[var(--light-text)] font-[family-name:var(--font-plus-jakarta-sans)]">J'ai déjà un compte <a className="font-medium text-[16px] text-[var(--primary)] ml-2" href="#">Se connecter</a></p>
+                {errorMessage && (
+                    <div className="text-[#F25C5C] font-thin text-[14px]">
+                        {errorMessage}
+                    </div>
+                )}
+                {successMessage && (
+                    <div className="text-[var(--primary)] font-thin text-[14px]">
+                        {successMessage}
+                    </div>
+                )}
+                <p className="font-medium text-[16px] text-[var(--light-text)] font-[family-name:var(--font-plus-jakarta-sans)]">
+                    J'ai déjà un compte
+                    <a className="font-medium text-[16px] text-[var(--primary)] ml-2" href="#">Se connecter</a>
+                </p>
             </div>
         </Form>
     )
