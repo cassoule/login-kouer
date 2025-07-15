@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Form from 'next/form';
 import { Eye, EyeOff, Check, X, ChevronDown } from "lucide-react";
+import Image from "next/image";
 
 export default function LoginForm() {
     const [companyName, setCompanyName] = useState("");
@@ -86,6 +87,68 @@ export default function LoginForm() {
     return (
         <Form onSubmit={handleSubmit} className="flex flex-col w-full gap-4">
             <div className="w-full items-start content-center flex flex-col gap-6">
+                <div className="flex w-full place-content-center gap-3">
+                    <button className="flex place-items-center gap-3 px-8 py-2 border-2 rounded-full border-[#E3E3E3]">
+                        <Image src="/google.png" alt={'Google'} width={30} height={30}/>
+                        <p className="text-[var(--light-text)] font-[family-name:var(--font-plus-jakarta-sans)] font-[500] text-[16px]">Continuer avec Google</p>
+                    </button>
+                </div>
+
+                <div className="flex w-full place-items-center gap-3">
+                    <hr className="flex-1/3 text-[#E3E3E3]"/>
+                    <p className="text-[var(--light-text)] grow-1 shrink-0 font-[family-name:var(--font-plus-jakarta-sans)] font-[500] text-[16px]">Ou créer un compte Kouer</p>
+                    <hr className="flex-1/3 text-[#E3E3E3]"/>
+                </div>
+                <div className="w-full flex flex-col sm:flex-row place-content-between gap-4">
+                    <div className="w-full">
+                        <p className="text-[var(--light-text)] text-[16px] font-thin ml-4">Nom</p>
+                        <input
+                            type="text"
+                            className={inputsClass}
+                        />
+                    </div>
+
+                    <div className="w-full">
+                        <p className="text-[var(--light-text)] text-[16px] font-thin ml-4">Prénom</p>
+                        <input
+                            type="text"
+                            className={inputsClass}
+                        />
+                    </div>
+                </div>
+
+                <div className="w-full">
+                    <p className="text-[var(--light-text)] text-[16px] font-thin ml-4">Adresse mail</p>
+                    <input
+                        type="email"
+                        className={inputsClass}
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                    />
+                </div>
+
+                <div className="w-full flex flex-col sm:flex-row place-content-between gap-4">
+                    <div className="w-full">
+                        <p className="text-[var(--light-text)] text-[16px] font-thin ml-4">Numéro de téléphone</p>
+                        <input
+                            type="tel"
+                            className={inputsClass}
+                            value={phoneNumber}
+                            onChange={(e) => setPhoneNumber(formatPhoneNumber(e.target.value))}
+                        />
+                    </div>
+
+                    <div className="w-full">
+                        <p className="text-[var(--light-text)] text-[16px] font-thin ml-4">Date de naissance</p>
+                        <input
+                            type="date"
+                            className={inputsClass}
+                            placeholder="JJ/MM/AAAA"
+                        />
+                    </div>
+                </div>
+
+
                 <div className="w-full">
                     <p className="text-[var(--light-text)] text-[16px] font-thin ml-4">Nom de l'entreprise</p>
                     <input
@@ -94,31 +157,6 @@ export default function LoginForm() {
                         value={companyName}
                         onChange={(e) => setCompanyName(e.target.value)}
                     />
-                </div>
-
-                <div className="w-full">
-                    <p className="text-[var(--light-text)] text-[16px] font-thin ml-4 mb-1 block">
-                        Type d'entreprise
-                    </p>
-                    <div className="relative">
-                        <select
-                            value={companyType}
-                            className={`appearance-none ${!companyType ? "text-[var(--light-text)]" : ""} ${inputsClass}`}
-                            onChange={(e) => setCompanyType(e.target.value)}
-                        >
-                            <option value="" disabled hidden>Sélectionnez un type d'entreprise</option>
-                            <option value="sarl">SARL</option>
-                            <option value="sas">SAS</option>
-                            <option value="auto-entreprise">Auto-entreprise</option>
-                            <option value="association">Association</option>
-                        </select>
-                        <div className="pointer-events-none absolute right-[5px] top-[5px] w-[32px] h-[32px] flex items-center justify-center rounded-full bg-white">
-                            <ChevronDown
-                                className="text-[var(--light-text)]"
-                                size={18}
-                            />
-                        </div>
-                    </div>
                 </div>
 
                 <div className="w-full">
@@ -145,26 +183,13 @@ export default function LoginForm() {
                             />
                         </div>
                     </div>
-
                 </div>
 
                 <div className="w-full">
-                    <p className="text-[var(--light-text)] text-[16px] font-thin ml-4">Numéro de téléphone</p>
+                    <p className="text-[var(--light-text)] text-[16px] font-thin ml-4">Siret</p>
                     <input
-                        type="tel"
+                        type="text"
                         className={inputsClass}
-                        value={phoneNumber}
-                        onChange={(e) => setPhoneNumber(formatPhoneNumber(e.target.value))}
-                    />
-                </div>
-
-                <div className="w-full">
-                    <p className="text-[var(--light-text)] text-[16px] font-thin ml-4">Adresse mail</p>
-                    <input
-                        type="email"
-                        className={inputsClass}
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
                     />
                 </div>
 
