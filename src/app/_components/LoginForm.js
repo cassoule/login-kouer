@@ -6,82 +6,44 @@ import { Eye, EyeOff, Check, X, ChevronDown } from "lucide-react";
 import Image from "next/image";
 
 export default function LoginForm() {
-    const [companyName, setCompanyName] = useState("");
-    const [companyType, setCompanyType] = useState("");
-    const [location, setLocation] = useState("");
-    const [phoneNumber, setPhoneNumber] = useState("");
     const [email, setEmail] = useState("");
-
     const [password, setPassword] = useState("");
-    const [passwordConf, setPasswordConf] = useState("");
     const [pswVisible, setPswVisible] = useState(false);
-    const [pswConfVisible, setPswConfVisible] = useState(false);
+    const [errors, setErrors] = useState({});
+    const [submitted, setSubmitted] = useState(false);
 
-    const [errorMessage, setErrorMessage] = useState("");
-    const [successMessage, setSuccessMessage] = useState("");
+    const inputsClass = "bg-[#F4F4F4] rounded-full px-5 py-2 w-full border focus:ring-1 focus:outline-none"
 
-    const hasLowercase = /[a-z]/.test(password);
-    const hasUppercase = /[A-Z]/.test(password);
-    const hasNumber = /\d/.test(password);
-    const hasSpecial = /[^A-Za-z0-9]/.test(password);
-    const hasMinLength = password.length >= 8;
-    const passwordsAreEqual = password === passwordConf;
-
-    const isValidPhone = /^0\d(?:\s?\d{2}){4}$/.test(phoneNumber);
-
-    const criteria = [
-        { label: "1 caractère minuscule", valid: hasLowercase },
-        { label: "1 caractère majuscule", valid: hasUppercase },
-        { label: "1 chiffre", valid: hasNumber },
-        { label: "1 caractère spécial", valid: hasSpecial },
-        { label: "Minimum 8 caractères", valid: hasMinLength },
-    ];
-
-    const inputsClass = "bg-[#F4F4F4] rounded-full px-5 py-2 w-full border border-transparent focus:border-[#4EA04C] focus:ring-1 focus:ring-[#4EA04C] focus:outline-none"
-
-    function formatPhoneNumber(input) {
-        const digits = input.replace(/\D/g, "").slice(0, 10);
-
-        return digits.replace(/(\d{2})(?=\d)/g, "$1 ").trim();
-    }
+    const getBorderColor = (field) => {
+        if (submitted) {
+            return errors[field]
+                ? 'border-[#F25C5C] focus:ring-[#F25C5C]'
+                : 'border-[var(--primary)] focus:ring-[var(--primary)]';
+        }
+        return 'border-transparent focus:border-[#4EA04C] focus:ring-[#4EA04C]';
+    };
 
     const handleSubmit = (e) => {
         e.preventDefault();
 
-        if (
-            !companyName ||
-            !companyType ||
-            !location ||
-            !phoneNumber ||
-            !email ||
-            !password ||
-            !passwordConf
-        ) {
-            setErrorMessage("Veuillez remplir tous les champs.");
-            return;
+        setSubmitted(true);
+        const newErrors = {};
+
+        if (!email.trim()) {
+            newErrors.email = "L'adresse mail est requise.";
+        } else if (!/\S+@\S+\.\S+/.test(email)) {
+            newErrors.email = "L'adresse mail n'est pas valide.";
         }
 
-        if (!isValidPhone) {
-            setErrorMessage("Le numéro de téléphone n'est pas valide.");
-            return;
+        if (!password.trim()) {
+            newErrors.password = "Le mot de passe est requis.";
         }
 
-        if (!hasLowercase || !hasUppercase || !hasNumber || !hasSpecial || !hasMinLength || !passwordsAreEqual) {
-            setErrorMessage("Le mot de passe ne respecte pas les critères.");
-            return;
-        }
+        setErrors(newErrors);
 
-        setErrorMessage("");
-        setSuccessMessage("Bienvenue dans l'aventure !");
-        const form = {
-            companyName: companyName,
-            companyType: companyType,
-            location: location,
-            phoneNumber: phoneNumber,
-            email: email,
-            password: password
+        if (Object.keys(newErrors).length === 0) {
+            console.log("Form submitted successfully");
         }
-        console.log("form submitted", form);
     }
 
     return (
@@ -91,7 +53,7 @@ export default function LoginForm() {
                     <p className="text-[var(--light-text)] text-[16px] font-thin ml-4">Adresse mail</p>
                     <input
                         type="email"
-                        className={inputsClass}
+                        className={`${inputsClass} ${getBorderColor('email')}`}
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                     />
@@ -102,7 +64,7 @@ export default function LoginForm() {
                     <div className="relative">
                         <input
                             type={pswVisible ? "text" : "password"}
-                            className={inputsClass}
+                            className={`${inputsClass} ${getBorderColor('password')}`}
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                         />
@@ -142,9 +104,9 @@ export default function LoginForm() {
             </div>
 
             <div className="flex w-full place-content-center gap-3">
-                <button className="flex place-items-center gap-3 px-2 py-2 border-2 rounded-full border-[#E3E3E3]">
+                <a href="#" className="flex place-items-center gap-3 px-2 py-2 border-2 rounded-full border-[#E3E3E3]">
                     <Image src="/google.png" alt={'Google'} width={30} height={30}/>
-                </button>
+                </a>
             </div>
         </Form>
     )

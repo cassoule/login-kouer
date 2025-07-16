@@ -6,19 +6,19 @@ import { Eye, EyeOff, Check, X, ChevronDown } from "lucide-react";
 import Image from "next/image";
 
 export default function LoginForm() {
-    const [companyName, setCompanyName] = useState("");
-    const [companyType, setCompanyType] = useState("");
-    const [location, setLocation] = useState("");
+    const [lastName, setLastName] = useState("");
+    const [firstName, setFirstName] = useState("");
     const [phoneNumber, setPhoneNumber] = useState("");
     const [email, setEmail] = useState("");
+    const [birthDate, setBirthDate] = useState("");
 
     const [password, setPassword] = useState("");
     const [passwordConf, setPasswordConf] = useState("");
     const [pswVisible, setPswVisible] = useState(false);
     const [pswConfVisible, setPswConfVisible] = useState(false);
 
-    const [errorMessage, setErrorMessage] = useState("");
-    const [successMessage, setSuccessMessage] = useState("");
+    const [errors, setErrors] = useState({});
+    const [submitted, setSubmitted] = useState(false);
 
     const hasLowercase = /[a-z]/.test(password);
     const hasUppercase = /[A-Z]/.test(password);
@@ -37,7 +37,16 @@ export default function LoginForm() {
         { label: "Minimum 8 caractères", valid: hasMinLength },
     ];
 
-    const inputsClass = "bg-[#F4F4F4] rounded-full px-5 py-2 w-full border border-transparent focus:border-[#4EA04C] focus:ring-1 focus:ring-[#4EA04C] focus:outline-none"
+    const inputsClass = "bg-[#F4F4F4] rounded-full px-5 py-2 w-full border focus:ring-1 focus:outline-none"
+
+    const getBorderColor = (field) => {
+        if (submitted) {
+            return errors[field]
+                ? 'border-[#F25C5C] focus:ring-[#F25C5C]'
+                : 'border-[var(--primary)] focus:ring-[var(--primary)]';
+        }
+        return 'border-transparent focus:border-[#4EA04C] focus:ring-[#4EA04C]';
+    };
 
     function formatPhoneNumber(input) {
         const digits = input.replace(/\D/g, "").slice(0, 10);
@@ -48,50 +57,61 @@ export default function LoginForm() {
     const handleSubmit = (e) => {
         e.preventDefault();
 
-        if (
-            !companyName ||
-            !companyType ||
-            !location ||
-            !phoneNumber ||
-            !email ||
-            !password ||
-            !passwordConf
-        ) {
-            setErrorMessage("Veuillez remplir tous les champs.");
-            return;
+        setSubmitted(true);
+        const newErrors = {};
+
+        if (!lastName.trim()) {
+            newErrors.lastName = 'Le nom est requis.';
         }
 
-        if (!isValidPhone) {
-            setErrorMessage("Le numéro de téléphone n'est pas valide.");
-            return;
+        if (!firstName.trim()) {
+            newErrors.firstName = 'Le prénom est requis.';
         }
 
-        if (!hasLowercase || !hasUppercase || !hasNumber || !hasSpecial || !hasMinLength || !passwordsAreEqual) {
-            setErrorMessage("Le mot de passe ne respecte pas les critères.");
-            return;
+        if (!email.trim()) {
+            newErrors.email = "L'adresse mail est requise.";
+        } else if (!/\S+@\S+\.\S+/.test(email)) {
+            newErrors.email = "L'adresse mail n'est pas valide.";
         }
 
-        setErrorMessage("");
-        setSuccessMessage("Bienvenue dans l'aventure !");
-        const form = {
-            companyName: companyName,
-            companyType: companyType,
-            location: location,
-            phoneNumber: phoneNumber,
-            email: email,
-            password: password
+        if (!phoneNumber.trim()) {
+            newErrors.phoneNumber = 'Le numéro de téléphone est requis.';
+        } else if (phoneNumber.length < 14) {
+            newErrors.phoneNumber = 'Le numéro de téléphone n\'est pas valide.';
         }
-        console.log("form submitted", form);
+
+        if (!birthDate.trim()) {
+            newErrors.birthDate = 'La date de naissance est requise.';
+        }
+
+        if (!password.trim()) {
+            newErrors.password = "Le mot de passe est requis.";
+        } else if (!(hasLowercase && hasUppercase && hasNumber && hasSpecial && hasMinLength)) {
+            newErrors.password = "Le mot de passe ne respecte pas les critères.";
+        }
+
+        if (!passwordConf.trim()) {
+            newErrors.passwordConf = "Le mot de passe est requis.";
+        } else if (!passwordsAreEqual) {
+            newErrors.passwordConf = "Les mots de passe ne correspondent pas.";
+        }
+
+        setErrors(newErrors);
+
+        if (Object.keys(newErrors).length === 0) {
+            const encodedEmail = encodeURIComponent(email);
+            window.location.href = `/validation-email?email=${encodedEmail}`;
+        }
     }
 
     return (
         <Form onSubmit={handleSubmit} className="flex flex-col w-full gap-[20px]">
             <div className="w-full items-start content-center flex flex-col gap-6">
                 <div className="flex w-full place-content-center gap-3">
-                    <button className="flex place-items-center gap-3 px-8 py-2 border-2 rounded-full border-[#E3E3E3]">
+                    <a href="#" className="flex place-items-center gap-3 px-8 py-2 border-2 rounded-full border-[#E3E3E3]">
                         <Image src="/google.png" alt={'Google'} width={30} height={30}/>
                         <p className="text-[var(--light-text)] font-[family-name:var(--font-plus-jakarta-sans)] font-[500] text-[16px]">Continuer avec Google</p>
-                    </button>
+                    </a>
                 </div>
 
                 <div className="flex w-full place-items-center gap-3 my-[10px]">
@@ -105,7 +125,9 @@ export default function LoginForm() {
                         <p className="text-[var(--light-text)] text-[16px] font-thin ml-4">Nom</p>
                         <input
                             type="text"
-                            className={inputsClass}
+                            className={`${inputsClass} ${getBorderColor('lastName')}`}
+                            value={lastName}
+                            onChange={(e) => setLastName(e.target.value)}
                         />
                     </div>
 
@@ -113,7 +135,9 @@ export default function LoginForm() {
                         <p className="text-[var(--light-text)] text-[16px] font-thin ml-4">Prénom</p>
                         <input
                             type="text"
-                            className={inputsClass}
+                            className={`${inputsClass} ${getBorderColor('firstName')}`}
+                            value={firstName}
+                            onChange={(e) => setFirstName(e.target.value)}
                         />
                     </div>
                 </div>
@@ -122,7 +146,7 @@ export default function LoginForm() {
                     <p className="text-[var(--light-text)] text-[16px] font-thin ml-4">Adresse mail</p>
                     <input
                         type="email"
-                        className={inputsClass}
+                        className={`${inputsClass} ${getBorderColor('email')}`}
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                     />
@@ -133,7 +157,7 @@ export default function LoginForm() {
                         <p className="text-[var(--light-text)] text-[16px] font-thin ml-4">Numéro de téléphone</p>
                         <input
                             type="tel"
-                            className={inputsClass}
+                            className={`${inputsClass} ${getBorderColor('phoneNumber')}`}
                             value={phoneNumber}
                             onChange={(e) => setPhoneNumber(formatPhoneNumber(e.target.value))}
                         />
@@ -143,8 +167,10 @@ export default function LoginForm() {
                         <p className="text-[var(--light-text)] text-[16px] font-thin ml-4">Date de naissance</p>
                         <input
                             type="date"
-                            className={inputsClass}
+                            className={`${inputsClass} ${getBorderColor('birthDate')}`}
                             placeholder="JJ/MM/AAAA"
+                            value={birthDate}
+                            onChange={(e) => setBirthDate(e.target.value)}
                         />
                     </div>
                 </div>
@@ -154,7 +180,7 @@ export default function LoginForm() {
                     <div className="relative">
                         <input
                             type={pswVisible ? "text" : "password"}
-                            className={inputsClass}
+                            className={`${inputsClass} ${getBorderColor('password')}`}
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                         />
@@ -193,7 +219,7 @@ export default function LoginForm() {
                     <div className="relative">
                         <input
                             type={pswConfVisible ? "text" : "password"}
-                            className={inputsClass}
+                            className={`${inputsClass} ${getBorderColor('passwordConf')}`}
                             value={passwordConf}
                             onChange={(e) => setPasswordConf(e.target.value)}
                         />
@@ -221,7 +247,7 @@ export default function LoginForm() {
                     &nbsp;de Kouer.
                 </p>
                 <button
-                    className="text-white rounded-full flex items-center justify-center bg-[#4EA04C] font-medium text-[16px] h-[44px] w-full cursor-pointer hover:bg-[#00A000]"
+                    className="text-white rounded-full flex items-center justify-center bg-[#4EA04C] font-medium text-[16px] h-[44px] w-full cursor-pointer"
                     type="submit"
                 >
                     Je crée mon compte
@@ -240,7 +266,7 @@ export default function LoginForm() {
 
             <div className="flex w-full place-content-center gap-3">
                 <a
-                    href='/sign-up-producteur'
+                    href='#'
                     className="text-[var(--primary)] rounded-full flex items-center justify-center border-2 border-[var(--primary)] font-medium text-[16px] h-[44px] w-full cursor-pointer "
                 >
                     Créer un compte professionnel gratuit
