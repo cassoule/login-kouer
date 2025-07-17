@@ -4,13 +4,15 @@ import { useState } from "react";
 import Form from 'next/form';
 import { Eye, EyeOff, Check, X, ChevronDown } from "lucide-react";
 import Image from "next/image";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 export default function LoginForm() {
     const [lastName, setLastName] = useState("");
     const [firstName, setFirstName] = useState("");
     const [phoneNumber, setPhoneNumber] = useState("");
     const [email, setEmail] = useState("");
-    const [birthDate, setBirthDate] = useState("");
+    const [birthDate, setBirthDate] = useState(null);
 
     const [password, setPassword] = useState("");
     const [passwordConf, setPasswordConf] = useState("");
@@ -80,7 +82,7 @@ export default function LoginForm() {
             newErrors.phoneNumber = 'Le numéro de téléphone n\'est pas valide.';
         }
 
-        if (!birthDate.trim()) {
+        if (!birthDate) {
             newErrors.birthDate = 'La date de naissance est requise.';
         }
 
@@ -165,12 +167,19 @@ export default function LoginForm() {
 
                     <div className="w-full">
                         <p className="text-[var(--light-text)] text-[16px] font-thin ml-4">Date de naissance</p>
-                        <input
-                            type="date"
-                            className={`${inputsClass} ${getBorderColor('birthDate')}`}
-                            placeholder="JJ/MM/AAAA"
-                            value={birthDate}
-                            onChange={(e) => setBirthDate(e.target.value)}
+                        {/*<input*/}
+                        {/*    type="date"*/}
+                        {/*    className={`${inputsClass} ${getBorderColor('birthDate')} placeholder:text-[var(--light-text)]`}*/}
+
+                        {/*    value={birthDate}*/}
+                        {/*    onChange={(e) => setBirthDate(e.target.value)}*/}
+                        {/*/>*/}
+                        <DatePicker
+                            selected={birthDate}
+                            onChange={(date) => setBirthDate(date)}
+                            dateFormat="dd/MM/yyyy"
+                            placeholderText="JJ/MM/AAAA"
+                            className={`${inputsClass} ${getBorderColor('birthDate')} placeholder:text-gray-400 uppercase`}
                         />
                     </div>
                 </div>
